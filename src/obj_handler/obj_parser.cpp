@@ -2,10 +2,9 @@
 
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 // Parser file OBJ untuk menyimpan Vertices dan Faces dalam suatu file OBJ
-bool OBJParser::loadOBJ(const std::string& filename) {
+bool OBJ::loadOBJ(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         printf("File tidak bisa dibuka: %s\n", filename.c_str());
@@ -44,7 +43,7 @@ bool OBJParser::loadOBJ(const std::string& filename) {
 }
 
 // Parser untuk menghandle Vertex dalam file OBJ
-bool OBJParser::parseVertex(const std::string& line) {
+bool OBJ::parseVertex(const std::string& line) {
     std::istringstream curLine(line);
     char prefix;
     float x, y, z;
@@ -56,7 +55,7 @@ bool OBJParser::parseVertex(const std::string& line) {
 }
 
 // Parser untuk menghandle Face dalam file OBJ
-bool OBJParser::parseFace(const std::string& line) {
+bool OBJ::parseFace(const std::string& line) {
     std::istringstream curLine(line);
     char prefix;
     std::string t1, t2, t3;
@@ -69,13 +68,12 @@ bool OBJParser::parseFace(const std::string& line) {
 
     if (v1 <= 0 || v2 <= 0 || v3 <= 0) return false;
 
-    // OBJ vertex index dimulai dari 1, internal vector dari 0.
     v1--; v2--; v3--;
 
     if (v1 < 0 || v2 < 0 || v3 < 0 ||
-        v1 >= static_cast<int>(vertices.size()) ||
-        v2 >= static_cast<int>(vertices.size()) ||
-        v3 >= static_cast<int>(vertices.size())) {
+        v1 >= (int)(vertices.size()) ||
+        v2 >= (int)(vertices.size()) ||
+        v3 >= (int)(vertices.size())) {
         return false;
     }
 
@@ -84,7 +82,7 @@ bool OBJParser::parseFace(const std::string& line) {
 }
 
 // Parser untuk menghandle index vertex dalam face
-int OBJParser::parseFaceVertexIndex(const std::string& token) {
+int OBJ::parseFaceVertexIndex(const std::string& token) {
     size_t slashPos = token.find('/');
     
     std::string indexPart;
@@ -97,7 +95,7 @@ int OBJParser::parseFaceVertexIndex(const std::string& token) {
 }
 
 // Getter dari vertices
-const std::vector<Vertex>& OBJParser::getVertices() const { return vertices; }
+const std::vector<Vertex>& OBJ::getVertices() const { return vertices; }
 
 // Getter dari faces
-const std::vector<Face>& OBJParser::getFaces() const { return faces; }
+const std::vector<Face>& OBJ::getFaces() const { return faces; }
