@@ -18,13 +18,7 @@ bool OBJParser::loadOBJ(const std::string& filename) {
     while (std::getline(file, line)) {
         lineCount++;
 
-        if (line.empty()) {
-            continue;
-        }
-
-        if (line[0] == '#') {
-            continue;
-        }
+        if (line.empty() || line[0] == '#') continue;
 
         if (line.size() > 1 && line[0] == 'v' && line[1] == ' ') {
             if (!parseVertex(line)) {
@@ -55,9 +49,7 @@ bool OBJParser::parseVertex(const std::string& line) {
     char prefix;
     float x, y, z;
 
-    if (!(curLine >> prefix >> x >> y >> z)) {
-        return false;
-    }
+    if (!(curLine >> prefix >> x >> y >> z)) return false;
 
     vertices.push_back({x, y, z});
     return true;
@@ -69,17 +61,13 @@ bool OBJParser::parseFace(const std::string& line) {
     char prefix;
     std::string t1, t2, t3;
 
-    if (!(curLine >> prefix >> t1 >> t2 >> t3)) {
-        return false;
-    }
+    if (!(curLine >> prefix >> t1 >> t2 >> t3)) return false;
 
     int v1 = parseFaceVertexIndex(t1);
     int v2 = parseFaceVertexIndex(t2);
     int v3 = parseFaceVertexIndex(t3);
 
-    if (v1 <= 0 || v2 <= 0 || v3 <= 0) {
-        return false;
-    }
+    if (v1 <= 0 || v2 <= 0 || v3 <= 0) return false;
 
     // OBJ vertex index dimulai dari 1, internal vector dari 0.
     v1--; v2--; v3--;
@@ -103,19 +91,13 @@ int OBJParser::parseFaceVertexIndex(const std::string& token) {
     if (slashPos == std::string::npos) indexPart = token;
     else indexPart = token.substr(0, slashPos);
 
-    if (indexPart.empty()) {
-        return -1;
-    }
+    if (indexPart.empty()) return -1;
 
     return std::stoi(indexPart);
 }
 
 // Getter dari vertices
-const std::vector<Vertex>& OBJParser::getVertices() const {
-    return vertices;
-} 
+const std::vector<Vertex>& OBJParser::getVertices() const { return vertices; }
 
 // Getter dari faces
-const std::vector<Face>& OBJParser::getFaces() const {
-    return faces;
-}
+const std::vector<Face>& OBJParser::getFaces() const { return faces; }
