@@ -1,11 +1,4 @@
-#include <array>
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <future>
-#include <mutex>
-#include <set>
+
 #include "octree.hpp"
 
 // Helper untuk MutEx lock dan grid cell
@@ -18,7 +11,7 @@ static int coordToGridIndex(float value, float minValue, float step) {
 
 // Konstruktor dari Octree
 Octree::Octree(const std::vector<Vertex> &v, const std::vector<Face> &f, int maxDepth)
-    : root(nullptr), maxDepth(maxDepth), vertices(v), faces(f) {
+    : root(nullptr), maxDepth(maxDepth), vertices(v), faces(f), totalVoxels(0) {
     if (vertices.empty()) {
         root = new OctreeNode(AABB(Vertex{0.0f, 0.0f, 0.0f}, Vertex{0.0f, 0.0f, 0.0f}));
         return;
@@ -58,7 +51,12 @@ Octree::Octree(const std::vector<Vertex> &v, const std::vector<Face> &f, int max
 Octree::~Octree() { delete root; }
 
 // Inisiasi proses subdivisi dari Octree
-void Octree::build() { subdivide(root, 0); }
+void Octree::build() {
+    start = std::chrono::steady_clock::now();
+    subdivide(root, 0); 
+    end = std::chrono::steady_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+}
 
 // Fungsi untuk melakukan subdivisi pada node dari Octree
 void Octree::subdivide(OctreeNode *node, int depth) {
@@ -70,8 +68,6 @@ void Octree::subdivide(OctreeNode *node, int depth) {
     }
 
     if (depth >= maxDepth || node->getTriangles().empty()) {
-        std::lock_guard<std::mutex> lock(gDepthStatsMutex);
-        if (depth >= 0 && depth < (int)(leafPerDepth.size())) leafPerDepth[depth]++;
         return;
     }
 
@@ -90,9 +86,7 @@ void Octree::subdivide(OctreeNode *node, int depth) {
 
         if (childFaces.empty()) {
             std::lock_guard<std::mutex> lock(gDepthStatsMutex);
-            if (depth >= 0 && depth < (int)(leafPerDepth.size())) {
-                leafPerDepth[depth]++;
-            }
+            if (depth >= 0 && depth < (int)(leafPerDepth.size())) leafPerDepth[depth+1]++;
             continue;
         }
         
@@ -108,12 +102,7 @@ void Octree::subdivide(OctreeNode *node, int depth) {
     }
 
     for (size_t i = 0; i < futures.size(); i++) futures[i].get();
-
-    if (!hasChild) {
-        std::lock_guard<std::mutex> lock(gDepthStatsMutex);
-        if (depth >= 0 && depth < (int)(leafPerDepth.size())) leafPerDepth[depth]++;
-        return;
-    }
+    if (!hasChild) return;
 }
 
 // Helper untuk membagi AABB menjadi 8 sub bagian
@@ -217,7 +206,6 @@ std::vector<AABB> Octree::getLeafBoxes() const {
 // Method untuk membuat mesh dari hasil vokselisasi
 void Octree::generateVoxelMesh(std::vector<Vertex> &outVertices, std::vector<Face> &outFaces) const {
     std::vector<AABB> leaves = getLeafBoxes();
-    printf("Total leaf nodes: %zu\n", leaves.size());
 
     if (leaves.empty()) return;
 
@@ -231,6 +219,7 @@ void Octree::generateVoxelMesh(std::vector<Vertex> &outVertices, std::vector<Fac
 
     std::vector<GridCellKey> leafKeys;
     leafKeys.reserve(leaves.size());
+    totalVoxels = (int)leaves.size();
 
     std::set<GridCellKey> occupied;
     for (size_t i = 0; i < leaves.size(); i++) {
@@ -318,3 +307,6 @@ int Octree::getLeafCountAtDepth(int depth) const {
     return leafPerDepth[depth];
 }
 
+int Octree::getTimeTakenMs() const {
+    return (int)duration.count();
+}

@@ -1,6 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <array>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <future>
+#include <mutex>
+#include <set>
+#include <chrono>
 #include "geometry.h"
 #include "aabb.hpp"
 #include "octree_node.hpp"
@@ -11,10 +20,14 @@ class Octree {
          // Properti yang dimiliki sebuah Octree
         OctreeNode* root;
         int maxDepth;
+        mutable int totalVoxels;
         const std::vector<Vertex>& vertices;
         const std::vector<Face>& faces;
         std::vector<int> nodePerDepth;
         std::vector<int> leafPerDepth;
+        std::chrono::steady_clock::time_point start;
+        std::chrono::steady_clock::time_point end;
+        std::chrono::milliseconds duration;
 
         // Helper untuk mengolah data OBJ dan proses vokseliasi
         void subdivide(OctreeNode* node, int depth);
@@ -35,5 +48,6 @@ class Octree {
         void generateVoxelMesh(std::vector<Vertex>& outVertices, std::vector<Face>& outFaces) const;
         int getNodeCountAtDepth(int depth) const;
         int getLeafCountAtDepth(int depth) const;
-
+        int getTotalVoxels() const { return totalVoxels; }
+        int getTimeTakenMs() const;
 };
