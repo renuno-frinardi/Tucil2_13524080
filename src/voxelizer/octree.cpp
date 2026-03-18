@@ -97,7 +97,7 @@ void Octree::subdivide(OctreeNode *node, int depth) {
         node->setIsLeaf(false);
         hasChild = true;
 
-        if (depth < 2) futures.push_back(std::async(std::launch::async, [this, child, depth]() { subdivide(child, depth + 1); }));
+        if (depth < 3) futures.push_back(std::async(std::launch::async, [this, child, depth]() { subdivide(child, depth + 1); }));
         else subdivide(child, depth + 1);
     }
 
