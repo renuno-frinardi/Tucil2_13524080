@@ -266,7 +266,7 @@ int main() {
 
     // Inisiasi placeholder text
     std::string inputPath = "test/test3.obj";
-    std::string outputPath = "test/output.obj";
+    std::string outputPath = "output/output.obj";
     std::string depthText = "5";
     std::string shownModelPath = "(none)";
 

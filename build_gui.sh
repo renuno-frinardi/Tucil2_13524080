@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "Compiling Voxelizer GUI (Raylib)..."
@@ -15,7 +14,7 @@ if [ ! -f "$RAYLIB_SRC/raylib.h" ]; then
     git clone --depth 1 https://github.com/raysan5/raylib.git "$RAYLIB_DIR"
 fi
 
-echo "Building vendored Raylib (PLATFORM_DESKTOP)..."
+echo "Building Raylib (PLATFORM_DESKTOP)..."
 make -C "$RAYLIB_SRC" PLATFORM=PLATFORM_DESKTOP
 
 echo "Compiling GUI application..."
@@ -35,4 +34,4 @@ g++ -Isrc -I"$RAYLIB_SRC" \
     -ldl \
     -lX11
 
-echo "Build GUI success! Binary: bin/voxelizer_gui"
+echo "Build GUI success! Binary Location: bin/voxelizer_gui"
