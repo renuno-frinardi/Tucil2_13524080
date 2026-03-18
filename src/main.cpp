@@ -28,9 +28,9 @@ int main(int argc, char* argv[]) {
     std::vector<Face> voxelFaces;
     tree.generateVoxelMesh(voxelVertices, voxelFaces);
 
-    printf("[LOG] Voxel count: %lu\n", tree.getTotalVoxels());
-    printf("[LOG] Vertex count: %lu\n", voxelVertices.size());
-    printf("[LOG] Face count: %lu\n", voxelFaces.size());
+    printf("[LOG] Voxel terbentuk: %lu\n", tree.getTotalVoxels());
+    printf("[LOG] Vertex terbentuk: %lu\n", voxelVertices.size());
+    printf("[LOG] Face terbentuk: %lu\n", voxelFaces.size());
     printf("[LOG] Depth: %d\n", depth);
     if (tree.getTimeTakenMs() >= 1000) printf("[LOG] Waktu yang dibutuhkan: %d detik\n", tree.getTimeTakenMs() / 1000);
     else printf("[LOG] Waktu yang dibutuhkan: %d milidetik\n", tree.getTimeTakenMs());
@@ -41,7 +41,6 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i <= depth; i++) {
         printf("[LOG] %d: %d node tidak ditelusuri\n", i, tree.getLeafCountAtDepth(i));
     };
-    printf("\n");
 
     if (!OBJOutput::writeOBJ(outputPath, voxelVertices, voxelFaces)) {
         printf("[ERROR] Gagal menulis file output OBJ: %s\n", outputPath.c_str());
